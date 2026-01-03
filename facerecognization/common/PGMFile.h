@@ -1,17 +1,14 @@
 /*
-This CPGMFile class is created by Vincent Gao(c_gao),2009-10-31.
-you cat use it as any purposes as you want,but you must keep
-this comment on these files,if you have any problems,please 
+This CPGMFile class is created by Vincent Gao(c_gao), 2009-10-31.
+You can use it for any purposes as you want, but you must keep
+this comment in these files. If you have any problems, please
 contact me at:
 
-e-mail:	c_gao@163.net
-blog:	http://cgao.csai.cn
+e-mail:    dr.c.gao@gmail.com
+homepage:  http://vgao.ddns.net
 
-this class can read a pgm file, and get the picture data as several
+This class reads a pgm file, and gets the picture data in several
 ways(from row, col, or a one dim array).
-
-if you want to use this code in your project,please tell me that 
-through my e-mail. thanks.
 */
 
 #pragma once
@@ -43,7 +40,7 @@ protected:
 	char name[MAX_NAME_SIZE];
 	char magic_number[2];
 	int rows, cols;
-	unsigned char grayscale; 
+	unsigned char grayscale;
 	unsigned char* data;
 };
 

@@ -1,18 +1,15 @@
 /*
-This BPNN class is created by Vincent Gao(c_gao),2009-10-31.
-you cat use it as any purposes as you want,but you must keep
-this comment on these files,if you have any problems,please 
+This CBPNN class is created by Vincent Gao(c_gao), 2009-10-31.
+You can use it for any purposes as you want, but you must keep
+this comment in these files. If you have any problems, please
 contact me at:
 
-e-mail:	c_gao@163.net
-blog:	http://cgao.csai.cn
+e-mail:    dr.c.gao@gmail.com
+homepage:  http://vgao.ddns.net
 
-this class can create a three lays BackPropogation Neural
-Network,to create it you can call the InitBPNN() function,
-to train the network,call Train().
-
-if you want to use this code in your project,please tell me that 
-through my e-mail. thanks.
+This class can create a three lays BackPropogation Neural
+Network. Call InitBPNN() to create a network, and call Train()
+to train the network.
 */
 
 #pragma once
@@ -20,12 +17,12 @@ through my e-mail. thanks.
 #include <vector>
 #include <string>
 
-#define DEFAULT_ETA			0.05		//默认学习率
-#define DEFAULT_MOMENTUM	0			//默认冲量
+#define DEFAULT_ETA			0.05		// default learning rate
+#define DEFAULT_MOMENTUM	0			// default momentum
 
 
-#define BPNN_SAVEFILE_FLAG			"BPNN"	//BP网络保存文件的标记
-#define BPNN_SAVEFILE_SEPCHAR		'\n'	//保存文件的分隔符
+#define BPNN_SAVEFILE_FLAG			"BPNN"	// BPNN file ID
+#define BPNN_SAVEFILE_SEPCHAR		'\n'	// File delimitor
 
 #define ABS(x)	(x)>0?(x):(-(x))
 
@@ -47,7 +44,7 @@ public:
 	bool LoadBPNNFile(const char* sSavePath,target_type* pvecTarget);
 protected:
 	void ReleaseBPNN();
-	double Sigmoid(double x);//激活函数
+	double Sigmoid(double x); // Activation function
 	void LayerForward();
 	double OutputError();
 	double HiddenError();
@@ -61,13 +58,13 @@ protected:
 	double* m_HiddenUnit;
 	double* m_OutputUnit;
 
-	//即如图(先保存o1单元的所有权,再保存o2的权,上层同理)
-	//       output layer      o
-	//                        / \
-	//       hidden layer   o1  o2
-	//			           /|\
-	//       input layer  o o o
-	//最下层为输入层,最上层为输出层,即网络走向:从下向上
+    // As shown below, first save the weights of the O1, then save the weights of O2; the same applies to the upper layer, i.e., node o.
+    //       output layer      o
+    //                        / \
+    //       hidden layer   o1  o2
+    //       	           /|\
+    //       input layer  o o o
+    // The bottom layer is the input layer, and the top layer is the output layer; that is, the network flows from bottom to top.
 
 	double* m_I2HWeight;
 

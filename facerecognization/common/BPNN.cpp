@@ -80,7 +80,7 @@ bool CBPNN::InitBPNN(int nInput,int nOutput,int nHidden)
 	double r=0.0;
 	int i=0;
 	for(i=0; i<nI2HW; i++)
-		m_I2HWeight[i]=0;//rand()*1.0/RAND_MAX;//0.000005;//-0.005+rand()*1.0/RAND_MAX;//-0.05到0.05之间
+		m_I2HWeight[i]=0;//rand()*1.0/RAND_MAX;//0.000005;//-0.005+rand()*1.0/RAND_MAX;//between -0.05 and 0.05
 	for(i=0; i<nH2OW; i++)
 		m_H2OWeight[i]=rand()*1.0/RAND_MAX/100;//rand()*1.0/RAND_MAX/10000;//-0.5+rand()*1.0/RAND_MAX;
 
@@ -138,12 +138,12 @@ bool CBPNN::LoadInputUnit(const double* data,int count,double scale)
 	if(count != m_nInput-1)
 		return false;
 
-	//m_InputUnit[0] 即 x0 始终为 1
+	//m_InputUnit[0] i.e., x0 is always 1
 	for(int i=0; i<count; i++)
 		m_InputUnit[i+1]=data[i]/scale;
 
 	m_InputUnit[0]=1.0;
-	
+
 	return true;
 }
 
@@ -152,7 +152,7 @@ bool CBPNN::LoadTarget(const double* data,int count,double scale)
 	if(count != m_nOutput)
 		return false;
 
-	//m_Target[0] 即 x0 始终为 1
+	//m_Target[0] i.e., x0 is always 1
 	for(int i=0; i<count; i++)
 		m_Target[i]=data[i]/scale;
 
@@ -166,20 +166,19 @@ double CBPNN::Sigmoid(double x)
 
 
 //////////////////////////////////////////////////////////////////////////
-//测试时注意
-//////////////////////////////////////////////////////////////////////////
+
 void CBPNN::LayerForward()
 {
 	double sum;
 	int i=0,j=0;
-	
+
 	m_InputUnit[0] = 1.0;
 
 	for (i = 1; i < m_nHidden; i++) 
 	{
 		sum = 0.0;
 		for (j = 0; j < m_nInput; j++)
-			sum += m_I2HWeight[(i-1)*m_nInput+j] * m_InputUnit[j];//按.h文件中的顺序格式来访问weight[i][j]
+			sum += m_I2HWeight[(i-1)*m_nInput+j] * m_InputUnit[j]; // Access weight[i][j] in the order defined by the header file
 
 		m_HiddenUnit[i] = Sigmoid(sum);
 	}
@@ -192,7 +191,7 @@ void CBPNN::LayerForward()
 		sum=0.0;
 		for(j=0; j < m_nHidden; j++)
 			sum+=m_H2OWeight[i*m_nHidden+j] * m_HiddenUnit[j];
-		
+
 		m_OutputUnit[i]=Sigmoid(sum);
 	}
 
@@ -210,29 +209,28 @@ double CBPNN::OutputError()
 		m_OutputError[i] = o * (1.0 - o) * (t - o);
 		errsum += ABS(m_OutputError[i]);
 	}
-	
+
 	return errsum;
 }
 
-/***********************容易出错***************************/
 double CBPNN::HiddenError()
 {
 	double h, sum, errsum;
 
 	errsum = 0.0;
-	//对网络的每个隐藏单元计算它的误差项
+	// Calculate the error for each hidden unit in the network
 	for (int i = 1; i < m_nHidden; i++)
 	{
 		h = m_HiddenUnit[i];
 		sum = 0.0;
-		for (int j= 0; j < m_nOutput; j++) 
+		for (int j= 0; j < m_nOutput; j++)
 		{
-			sum += m_OutputError[j] * m_H2OWeight[j*m_nOutput+i];//按.h文件中的顺序格式来访问m_H2OWeight[i][j]
+			sum += m_OutputError[j] * m_H2OWeight[j*m_nOutput+i]; // Access m_H2OWeight[i][j] using the layout specified in the header (.h) file
 		}
 		m_HiddenError[i] = h * (1.0 - h) * sum;
 		errsum += ABS(m_HiddenError[i]);
 	}
-	
+
 	return errsum;
 }
 
@@ -268,7 +266,7 @@ double CBPNN::Train(double eta,double momentum)
 {
 	m_eta=eta;
 	m_momentum=momentum;
-	
+
 	double err_o=0.0;
 	double err_h=0.0;
 	double err=0.0;
@@ -305,7 +303,7 @@ void CBPNN::Test(const double* data,int nDimentions,double scale,std::vector<dou
 	}
 }
 
-//将训练好的神经网络保存至文件
+// Save the trained neural network to a file
 bool CBPNN::SaveBPNNFile(const char* sSavePath,const char* sTargetName,int nIterateTime,double fStopError,target_type* pvecTarget)
 {
 	FILE* fp=fopen(sSavePath,"w");
@@ -320,23 +318,23 @@ bool CBPNN::SaveBPNNFile(const char* sSavePath,const char* sTargetName,int nIter
 		return false;
 
 	int i=0;
-	
+
 	fprintf(fp,"%s%c",BPNN_SAVEFILE_FLAG,BPNN_SAVEFILE_SEPCHAR);
 	fprintf(fp,"%s%c",/*strlen(sTargetName),*/sTargetName,BPNN_SAVEFILE_SEPCHAR);//"Direction" or other Target
 	fprintf(fp,"%d%c",nIterateTime,BPNN_SAVEFILE_SEPCHAR);//Iterate Time
-	fprintf(fp,"%lf%c",fStopError,BPNN_SAVEFILE_SEPCHAR);//fStopError,注意lf符号
+	fprintf(fp,"%lf%c",fStopError,BPNN_SAVEFILE_SEPCHAR);//fStopError, pay attention to: lf
 	fprintf(fp,"%lf%c",m_eta,BPNN_SAVEFILE_SEPCHAR);//eta, the learning rate
 	fprintf(fp,"%lf%c",m_momentum,BPNN_SAVEFILE_SEPCHAR);//momentum
 	fprintf(fp,"%d%c",m_nInput,BPNN_SAVEFILE_SEPCHAR);//count of input unit
 	fprintf(fp,"%d%c",m_nHidden,BPNN_SAVEFILE_SEPCHAR);//count of input unit
 	fprintf(fp,"%d%c",m_nOutput,BPNN_SAVEFILE_SEPCHAR);//count of input unit
-	
+
 	int nI2HW=(m_nHidden-1)*(m_nInput);
 	int nH2OW=(m_nHidden)*(m_nOutput);
 
 	fprintf(fp,"%d%c",nI2HW,BPNN_SAVEFILE_SEPCHAR);
 	fprintf(fp,"%d%c",nH2OW,BPNN_SAVEFILE_SEPCHAR);
-	
+
 	if(pvecTarget != NULL)
 	{
 		for(target_type::iterator it=pvecTarget->begin(); it!=pvecTarget->end(); it++)
@@ -346,9 +344,8 @@ bool CBPNN::SaveBPNNFile(const char* sSavePath,const char* sTargetName,int nIter
 				fprintf(fp,"%lf%c",(it->second)[i],BPNN_SAVEFILE_SEPCHAR);
 		}
 	}
-	
 
-	//保存三层单元值xij
+	// Save the x_ij values for all three layers
 // 	for(i=0; i<m_nInput; i++)
 // 		fprintf(fp,"%lf%c",m_InputUnit[i],BPNN_SAVEFILE_SEPCHAR);
 // 	for(i=0; i<m_nHidden; i++)
@@ -356,7 +353,7 @@ bool CBPNN::SaveBPNNFile(const char* sSavePath,const char* sTargetName,int nIter
 // 	for(i=0; i<m_nOutput; i++)
 // 		fprintf(fp,"%lf%c",m_OutputUnit[i],BPNN_SAVEFILE_SEPCHAR);
 
-	//保存两层权值wij
+	// Save the inter-layer weights w_ij
 	for(i=0; i<nI2HW; i++)
 		fprintf(fp,"%lf%c",m_I2HWeight[i],BPNN_SAVEFILE_SEPCHAR);
 
@@ -369,7 +366,7 @@ bool CBPNN::SaveBPNNFile(const char* sSavePath,const char* sTargetName,int nIter
 	return true;
 }
 
-//从文件读取网络的各参数值
+// Load the network parameters from a file
 bool CBPNN::LoadBPNNFile(const char* sSavePath,target_type* pvecTarget)
 {
 	FILE* fp=fopen(sSavePath,"r");
@@ -407,7 +404,7 @@ bool CBPNN::LoadBPNNFile(const char* sSavePath,target_type* pvecTarget)
 	fscanf(fp,"%d",&nH2OW);
 
 
-	//根据读到的参数创建BP神经网络
+	// Construct a BP neural network based on the read parameters
 	InitBPNN(nInput-1,nOutput,nHidden-1);
 
 	int i=0;
@@ -444,9 +441,6 @@ bool CBPNN::LoadBPNNFile(const char* sSavePath,target_type* pvecTarget)
 	}
 	for(i=0; i<nH2OW; i++)
 		fscanf(fp,"%lf%c",&(m_H2OWeight[i]));
-
-	
-
 
 	fclose(fp);
 

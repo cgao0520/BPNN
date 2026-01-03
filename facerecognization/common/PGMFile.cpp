@@ -44,7 +44,7 @@ OPERATOR_CODE CPGMFile::openPGMFile(const char* filepath)
 	if(!fp)
 		return FILECANTOPEN_ERROR;
 
-	//1.读取文件标识符,应为"P5"或"P2"
+	//1. Read file id, shall be "P5" or "P2"
 	fread(magic_number,2,1,fp);
 
 	//int offset=0;
@@ -53,13 +53,13 @@ OPERATOR_CODE CPGMFile::openPGMFile(const char* filepath)
 	{
 		char temp[10];
 		//offset+=3;
-		//2.读取列像素个数		
+		//2. Read number of pixels for column
 		memset(temp,0,10);
 		int i=0;
 		char ch=(unsigned char)fgetc(fp);
 		if(ch == 0x0a)
 			ch=(unsigned char)fgetc(fp);
-		while(ch != 0x20/*空格*/ && ch != 0x0a /*回车*/)
+		while(ch != 0x20 /* Space */ && ch != 0x0a /* Line Feed (LF) */)
 		{
 			temp[i]=ch;
 			i++;
@@ -67,11 +67,11 @@ OPERATOR_CODE CPGMFile::openPGMFile(const char* filepath)
 		}
 		cols=atoi(temp);
 		//offset+=i+1;
-		//3.读取行像素个数
+		//3. Read number of pixels for row
 		memset(temp,0,10);
 		i=0;
 		ch=(unsigned char)fgetc(fp);
-		while(ch != 0x20/*空格*/ && ch != 0x0a /*回车*/)
+		while(ch != 0x20/* Space */ && ch != 0x0a /* Line Feed (LF) */)
 		{
 			temp[i]=ch;
 			i++;
@@ -79,11 +79,11 @@ OPERATOR_CODE CPGMFile::openPGMFile(const char* filepath)
 		}
 		rows=atoi(temp);
 		//offset+=i+1;
-		//4.读取灰度级数
+		//4. Read levels of intensity
 		memset(temp,0,10);
 		i=0;
 		ch=(unsigned char)fgetc(fp);
-		while(ch != 0x20/*空格*/ && ch != 0x0a /*回车*/)
+		while(ch != 0x20/* Space */ && ch != 0x0a /* Line Feed (LF) */)
 		{
 			temp[i]=ch;
 			i++;
@@ -91,7 +91,7 @@ OPERATOR_CODE CPGMFile::openPGMFile(const char* filepath)
 		}
 		grayscale=(unsigned char)atoi(temp);
 		//offset+=i+1;
-		//5.读取像素数据
+		//5. Read pixel data
 		int nlen=filelength(fileno(fp));
 
 		if(data)
